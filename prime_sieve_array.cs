@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Scratchname
 {
@@ -9,39 +6,47 @@ namespace Scratchname
     {
         static void Main()
         {
-
-            // optimisations:
-            // a: 2 is only even prime, handle 2 and evens seperately, sieve by odds only.
-            // b: start at square of the chosen multiple
-            // c: stop when square of sieving prime > n
-            // TRY USING A BIT ARRAY
-            // v (reference type, on heap) (can store variable number of bits
-            // (System.Collections)
-            // OR
-            // BitVector32 (value type, on stack) FASTER! (but limited to storing 32 bits)
-            // System.Collections.Specialized
-            // ### sieve is no good for huge numbers ###
+            // ### sieve not good for big numbers : inefficient ~10 millionth prime. ###
+            // ### crash at billionth prime (array dimension exceeded)               ###
             var watch = new System.Diagnostics.Stopwatch();
+            //Console.Write("Input nmber:");      //
+            //string input = Console.ReadLine();  // user input 
+            //int num = Convert.ToInt32(input);   //
             watch.Start();
-            //Console.Write("Input nmber:");
-            //string input = Console.ReadLine();
-            //int num = Convert.ToInt32(input);
-            int num = 15485863;
-            int range = num + 1;
-            bool[] sievearray = new bool[range]; // empty array
+            //long num = 13;  // test value
+            long num = 15485863; // millionth prime
+            long range = num + 1; // stay within boundary
+            bool[] sievearray = new bool[range]; // init empty array
             for (int i = 0; i < range; i++)
             {
-                sievearray[i] = true;  // initialise to true
+                sievearray[i] = true;  // initialise array to true
             }
             sievearray[0] = false;  // zero not prime
             sievearray[1] = false;  // one not prime
-            for (int j = 2; j < range; j++)
+
+            for (long j = 2; j < range; j++)
             {
                 if (sievearray[j])  // if a number is still marked prime
-                {   
-                    for (int k = j + j; k < range; k += j ) // mark its multiples as non prime
+                {
+                    if ( j <= 10) // 1- 10 will mark everythin divisable by 2, 3, 5, & 7
                     {
-                        sievearray[k] = false;
+                        for (long k = j * j; k < range; k += j) // start from square of num
+                        {
+                            sievearray[k] = false; // mark multiples as non prime
+                        }
+                    }
+                    else  // miss all multiples of 2,3,5,7 as marked previously
+                    {
+                        if ( j % 2 != 0 || j % 3 != 0 || j % 5 != 0 || j % 7 != 0)
+                        {
+                            for (long k = j * j; k < range; k += j) // mark its multiples as non prime
+                            {
+                                if ( j*j < range) // make sure square isnt bigger than target
+                                {
+                                    sievearray[k] = false;
+                                }
+                            }
+                        }
                     }
                 }
             }
